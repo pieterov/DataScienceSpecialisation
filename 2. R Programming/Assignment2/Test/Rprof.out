@@ -1,0 +1,6 @@
+sample.interval=20000
+"anyDuplicated.default" "anyDuplicated" "[.data.frame" "[" "na.omit.data.frame" "na.omit" ".External2" "model.frame.default" "stats::model.frame" "eval" "eval" "lm" 
+"as.character" "model.response" "lm" 
+"as.character" "model.response" "lm" 
+".External2" "model.matrix.default" "model.matrix" "lm" 
+"lm.fit" "lm" 
