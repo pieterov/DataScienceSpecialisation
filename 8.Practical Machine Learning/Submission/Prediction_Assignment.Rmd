@@ -25,6 +25,7 @@ The approach how this was achieved is explained below.
 ## Data Retrieval and Preprocessing
 
 ### Initialisation and getting the data
+After downloading the data for the first time (in the console), it was observed that some of the data fields contain "#DIV/0!" or are blank (""). Therefore, when downloading the data in this report, these will be marked as "NA".
 ```{r, results='hide'}
 # Initialize libraries.
 library(caret); library(randomForest)
@@ -32,7 +33,7 @@ library(caret); library(randomForest)
 # Set the seed.
 set.seed(160970)
 
-# After downloading the data for the first time (in the console), it was observed that some of the data fields contain "#DIV/0!" or are blank (""). Therefore, when downloading the data in this report, these will be marked as "NA".
+# Get the data.
 train.path <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 test.path <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
 
