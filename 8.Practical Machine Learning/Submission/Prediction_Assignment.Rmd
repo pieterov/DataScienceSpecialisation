@@ -5,12 +5,12 @@ date: "5/20/2017"
 output: html_document
 ---
 
-##Background
+## Background
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement ??? a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. This has been studied and published by researchers from Lancaster University, Max Planck Institute for Informatics, and Pontifical Catholic University of Rio de Janeiro, see References below.
 
 The goal of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants, and to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. This is captured in the "classe" variable in the training set. The manner described below involves cross validation, the expected out of sample error, and explanation of the choices made. The prediction model has been used to predict the 20 different test cases.
 
-##Conclusion
+## Conclusion
 Based on the Random Forest model that was trained on a subset of the training set, the following classes are predicted for the 20 test cases:
 
  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
