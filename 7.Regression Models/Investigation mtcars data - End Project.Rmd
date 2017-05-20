@@ -1,0 +1,101 @@
+---
+title: 'Investigation of MTCARS Data'
+output:
+  html_document: default
+  pdf_document: default
+---
+Author: Pieter Overdevest
+
+## Executive Summary
+Motor Trend, a magazine about the automobile industry is interested in exploring the relationship between car variables and fuel consumption (miles per gallon). The study below suggests that 4 and 6 cylinder manual transmission engines get more miles out of a gallon than then same cylinder automatic transmission engines. Though, for 8 cylinder engines there seems no difference between the two engine transmission types. In fact, 4 cylinder manual transmission engines will take you 5 miles further per gallon than automatic transmission engines with the same number of cylinders. 
+
+## Exploratory Data Analyses
+
+First, we open a few libraries and the mtcars dataset. Than we show a few summary statistics,
+```{r}
+library(ggplot2)
+library(plyr)
+library(gridExtra)
+
+data("mtcars")
+head(mtcars)
+str(mtcars)
+```
+
+
+This shows all attributes are of class "numerical". For further assessment, we convert the levels of the transmission data to "automatic" and "manual", as this is more informative than 0 and 1 respectively. In addition, the class of the column is converted to factor,
+```{r}
+mtcars$am[mtcars$am == 0] <- "automatic"
+mtcars$am[mtcars$am == 1] <- "manual"
+
+mtcars$am <- as.factor(mtcars$am)
+```
+
+
+Next, we do some further exploratory data analyses on the MPG data vs transmission and the number of cylinders.
+```{r}
+
+binwidth <- (max(mtcars$mpg) - min(mtcars$mpg))/20
+
+g <-  ggplot(data = mtcars, aes_string(x = "am", y = "mpg")) +
+        geom_boxplot() +
+        stat_boxplot(geom = "errorbar", width = 0.5) +
+        facet_wrap(~ factor(cyl)) +
+        labs(x = "Transmission", y = "Miles Per Gallon", title =
+                     "Miles per Gallon as function of the number of cylinders (4, 6 or 8) and transmission.") +
+        theme(text = element_text(size = 15),
+              legend.position="none") +
+        geom_dotplot(binaxis = "y", stackdir = "center", stackgroups = TRUE,
+              binpositions="all", binwidth = binwidth,
+              dotsize = 0.6, alpha = 0.6, aes(fill = cyl))
+
+g
+```
+
+The boxplots show that manuals transmissions with 4 cylinders get more miles out of a gallon than automatic transmissions with 4 cylinders. The difference between the two transmission types dimishes towards 8 cylinder engines.
+
+## Is an automatic or manual transmission better for MPG?
+This will be investigated through linear modeling of the MPG data for engines with automatic vs manual transmissions. In addition, the effect of the number of cylinders will be investigated. It is anticipated that engines with a higher number cylinders will consume more gas per mile than engines with a fewer number of cylinders. 
+```{r}
+fit.automatic <- lm(mpg ~ cyl, data = mtcars[mtcars$am == "automatic",])
+fit.manual <- lm(mpg ~ cyl, data = mtcars[mtcars$am == "manual",])
+
+summary(fit.automatic)
+summary(fit.manual)
+
+h <- ggplot(data = mtcars, aes(x = cyl, y = mpg, col = am),
+            cex=4, alpha = 0.5, width = 0.05) + 
+        geom_point() +
+        geom_smooth(method = "lm", se = FALSE)
+h
+```
+
+The summary tables and the figure above suggest that at a low number of cylinders in the engine the miles per gallon is higher for manual transmission engines than for automatic transmission engines. Notice, the intercepts are 41 MPG and 31 MPG resp. for a theoretical engine with 0 cylinders. However, as the number of miles per gallon decreases with the number of cylinders, the descrease is steeper for manual transmissions than for automatic transmissions (3.2 MPG per cylinder vs 2.0 MPG per cylinder). 
+
+###Quantify the uncertainty
+The slopes are significant in both models. The p statistic is smaller than 0.001 in both cases.
+
+
+###Plot the residuals
+Plotting the residuals shows they are reasonably around zero, see figure below,
+```{r}
+par(mfrow=c(1,2))
+plot(mtcars$cyl[mtcars$am=="automatic"], fit.automatic$residuals, pch=19, col="red", xlab="cyl", ylab="residual / Automatic")
+plot(mtcars$cyl[mtcars$am=="manual"], fit.manual$residuals, pch=19, col="blue", xlab="cyl", ylab="residual / Manual")
+```
+
+
+##Quantify the MPG difference between automatic and manual transmissions
+Listing the Miles Per Gallon,
+```{r}
+cbind(mtcars$cyl[mtcars$am=="automatic"], predict.lm(fit.automatic))
+cbind(mtcars$cyl[mtcars$am=="manual"], predict.lm(fit.manual))
+```
+
+The numbers in the tables above indicates that on average the MPG difference between manual and automatic transmission engines with 4, 6 and 8 cylinders is resp.,
+```{r}
+27.92553 - 22.97059
+21.36383 - 19.01912
+14.80213 - 15.06765
+```
+

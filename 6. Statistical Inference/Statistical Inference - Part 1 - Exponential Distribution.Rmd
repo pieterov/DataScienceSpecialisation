@@ -1,73 +1,81 @@
 ---
-title: 'Investigation of Exponential Distribution'
+title: 'Investigation of MTCARS Data'
 output:
   html_document: default
   pdf_document: default
 ---
 Author: Pieter Overdevest
 
-## Overview
-In this short report we intend to investigate the exponential distribution and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. 
+## Executive Summary
+Motor Trend, a magazine about the automobile industry is interested in exploring the relationship between car variables and fuel consumption (miles per gallon). The study below shows that generally speaking manual transmission engines consume less fuel per mile than automatic transmission engines. Though, this difference seems to reduce to 0 with 8 cylinder engines. In fact, ... transmission engines will take you ... miles further per gallon than ... transmission engines. 
 
-## Simulations of Means
-In all simulations of the exponential distribution lambda has been set to 0.2. This means that we can expect an average of the means and of the standard deviation of 5. We investigate the distribution of averages of 40 exponentials. We repeat the simulation 1000 times.
+## Exploratory Data Analyses
 
 First, we set a few parameters,
 ```{r}
-set.seed(16091970)
-mean_vector <- NULL
-sd_vector <- NULL
-sim_vector <- NULL
-lambda <- 0.2
+library(ggplot2)
+library(plyr)
+library(gridExtra)
+
+data("mtcars")
+head(mtcars)
+str(mtcars)
 ```
 
-Now, we are ready to get to the real deal! Run the 1000 simulations and store the means and standard deviations in a vector. All simulated data are stored in a matrix.
+
+This shows all attributes are of class "numerical". For further assessment, we convert the levels of the transmission data to "automatic" and "manual", as this is more informative than 0 and 1 respectively. In addition, the class of the column is converted to factor,
 ```{r}
-for (i in 1:1000) {
-        sim <- rexp(40, lambda)
-        mean_vector <- c(mean_vector, mean(sim))
-        sd_vector <- c(sd_vector, sd(sim))
-        sim_vector <- cbind(sim_vector, sim)
-}
+mtcars$am[mtcars$am == 0] <- "automatic"
+mtcars$am[mtcars$am == 1] <- "manual"
+
+mtcars$am <- as.factor(mtcars$am)
 ```
 
-Let's see the distribution of the 1000 averages (each of 40 sampled data), see left figure below. The right figure shows the distribution of all 40,000 sampled data, just because we can. The red vertical lines indicate the average of the 1000 means. The blue dotted lines indicate the mean of the population (5).
-```{r, fig.width=10, fig.height=4}
-par(mfrow = c(1, 2))
-hist(mean_vector,25, xlab="Sample Means", main="Distribution 1,000 means means")
-abline(v = mean(mean_vector), col = "red", lwd = 3)
-abline(v = 1/lambda, col = "blue", lwd = 3, lty = 2)
 
-hist(sim_vector,25, xlab="Sample values", main="Distribution 40,000 samples")
-abline(v = mean(mean_vector), col = "red", lwd = 3)
-abline(v = 1/lambda, col = "blue", lwd = 3, lty = 2)
+Next we do some exploratory data analyses on the MPG data vs transmission and the number of cylinders.
+```{r}
+
+binwidth <- (max(mtcars$mpg) - min(mtcars$mpg))/20
+
+g <-  ggplot(data = mtcars, aes_string(x = "am", y = "mpg")) +
+        geom_boxplot() +
+        stat_boxplot(geom = "errorbar", width = 0.5) +
+        facet_wrap(~ factor(cyl)) +
+        labs(x = "Transmission", y = "Miles Per Gallon", title = "Miles per Gallon as function of the number of cylinders (4, 6 or 8) and transmission.") +
+        theme(text = element_text(size = 20),
+              legend.position="none") +
+        geom_dotplot(binaxis = "y", stackdir = "center", stackgroups = TRUE,
+              binpositions="all", binwidth = binwidth,
+              dotsize = 0.6, alpha = 0.6, aes(fill = cyl))
+
 ```
 
-The average of the 1000 means is very close to the mean of the population (5.01 and 5, resp). In the left figure, we see that the means more or less follow a normal distribution. The right figure shows how the original sampled data are distributed, clearly an exponential distribution (not normal)!
 
-By plotting a so-called 'normal QQ plot', we can investigate how well the distribution of the means follows a normal distribution (left). And for the fun we also plotted the original sampled data in the QQ plot.
-```{r, fig.width=10, fig.height=4}
-par(mfrow = c(1, 2))
-qqnorm(mean_vector, main="Normal Q-Q Plot of 1,000 sample means")
-qqline(mean_vector)
+## Is an automatic or manual transmission better for MPG
+This will be investigated through linear modeling of the MPG data for engines with automatic vs manual transmissions. In addition, the effect of the number of cylinders will be investigated. It is anticipated that engines with a higher number cylinders will consume more gas per mile than engines with a fewer number of cylinders. 
+```{r}
+fit.automatic <- lm(mpg ~ cyl, data = mtcars[mtcars$am == "automatic",])
+fit.manual <- lm(mpg ~ cyl, data = mtcars[mtcars$am == "manual",])
 
-qqnorm(sim_vector, main="Normal Q-Q Plot of 40,000 samples")
-qqline(sim_vector)
+summary(fit.automatic)
+summary(fit.manual)
+
+h <- ggplot(data = mtcars, aes(x = cyl, y = mpg, col = am),
+            cex=4, alpha = 0.5, width = 0.05) + 
+        geom_point() +
+        geom_smooth(method = "lm", se = FALSE)
+h
 ```
 
-This confirms that the 1000 means follow a normal distribution (left). As expected, the exponential distribution is not a normal distribution (right).
-
-## Simulations of Standard Deviations
-
-We do the same for the standard deviation. Distribution of the 1,000 standard deviations is shown in the left figure. In the right figure, the same data are plotted in a QQ plot. The red vertical lines indicate the average of the 1000 standard deviations. The blue dotted lines indicate the standard deviation of the population (5).
-```{r, fig.width=10, fig.height=4}
-par(mfrow = c(1, 2))
-hist(sd_vector,25, xlab="Sample Standard Deviations", main="Distribution 1,000 sd's")
-abline(v = mean(sd_vector), col = "red", lwd = 3)
-abline(v = 1/lambda, col = "blue", lwd = 3, lty = 2)
-
-qqnorm(sd_vector, main="Normal Q-Q Plot of 1,000 sample sd's")
-qqline(sd_vector)
+Plotting the residuals shows they are reasonably around zero (),
+```{r}
+par(mfrow=c(1,2))
+plot(mtcars$cyl[mtcars$am=="automatic"], fit.automatic$residuals, pch=19, col="red", xlab="cyl", ylab="residual / Automatic")
+plot(mtcars$cyl[mtcars$am=="manual"], fit.manual$residuals, pch=19, col="blue", xlab="cyl", ylab="residual / Manual")
 ```
 
-The average of the 1000 standard deviations is not as close to the standard deviation of the population (4.88 and 5, resp), as the average is, see above. As with the means, we see that the standard deviations approach a normal distribution. However, the distribution of means seem to be closer to a normal distribution, than the distribution of the standard deviations. You can see this by comparing the two QQ plots. Probably, for standard deviations a larger number of simulations is needed to approach a normal distribution.
+Listing the Miles Per Gallon,
+```{r}
+cbind(mtcars$cyl[mtcars$am=="automatic"], predict.lm(fit.automatic))
+cbind(mtcars$cyl[mtcars$am=="manual"], predict.lm(fit.manual))
+```

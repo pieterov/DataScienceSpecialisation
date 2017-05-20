@@ -1,0 +1,141 @@
+---
+title: "Prediction Assignment - Quantified Self Prediction using Machine Learning (Random Forest)"
+author: "Pieter Overdevest"
+date: "5/20/2017"
+output: html_document
+---
+
+##Background
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement ??? a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. This has been studied and published by researchers from Lancaster University, Max Planck Institute for Informatics, and Pontifical Catholic University of Rio de Janeiro, see References below.
+
+The goal of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants, and to predict the manner in which they did the exercise. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. This is captured in the "classe" variable in the training set. The manner described below involves cross validation, the expected out of sample error, and explanation of the choices made. The prediction model has been used to predict the 20 different test cases.
+
+##Conclusion
+Based on the Random Forest model that was trained on a subset of the training set, the following classes are predicted for the 20 test cases:
+
+ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
+ 
+ B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
+ 
+Levels: A B C D E
+
+
+The approach how this was achieved is explained below.
+
+## Data Retrieval and Preprocessing
+
+### Initialisation and getting the data
+```{r, results='hide'}
+# Initialize libraries.
+library(caret); library(randomForest)
+
+# Set the seed.
+set.seed(160970)
+
+# After downloading the data for the first time (in the console), it was observed that some of the data fields contain "#DIV/0!" or are blank (""). Therefore, when downloading the data in this report, these will be marked as "NA".
+train.path <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+test.path <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+
+train.set <- read.csv(train.path, head=TRUE, sep=',', na.strings = c("NA", "#DIV/0!", ""))
+test.set <- read.csv(test.path, head=TRUE, sep=',', na.strings = c("NA", "#DIV/0!", ""))
+
+# Let's see the data themselves,
+head(train.set, 3); head(test.set, 3)
+```
+To keep the report small, I decided not to print the results of the head function in the report.
+
+```{r}
+# and the size of the data sets.
+dim(train.set); dim(test.set)
+```
+
+### Remove non-relevant and NA columns
+We see that some variables are not relevant for the analysis we are asked to do. These - non-relevant - variables are X, user_name, raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp, new_window, and num_window. These are the first 7 columns of the data sets, and will be removed.
+```{r}
+train.set <- train.set[ , -c(1:7)]
+test.set <- test.set[ , -c(1:7)]
+
+dim(train.set); dim(test.set)
+```
+We see that both data sets have lost 7 columns (160 --> 153).
+
+Now, we remove columns that contain NA.
+```{r}
+train.set <- train.set[,colSums(is.na(train.set)) == 0]
+test.set <- test.set[,colSums(is.na(test.set)) == 0]
+```
+
+And ensure there is no NA left in the data.
+```{r}
+sum(is.na(train.set)); sum(is.na(test.set))
+
+dim(train.set); dim(test.set)
+```
+Indeed, both sums are equal to zero. Also, we see that we removed 100 columns by removing the NA's.
+
+### Partitioning the training dataset
+The training set is split in to 2 subsets in order to allow for cross-validation. The sub.training set will get 75% of the data, while the sub.test set will get the remaining 25% of the data. Assignment will be done using random sampling without replacement.
+```{r}
+sub.set <- createDataPartition(y = train.set$classe, p=0.75, list=FALSE)
+sub.train.set <- train.set[ sub.set, ] 
+sub.test.set <- train.set[ -sub.set, ]
+
+dim(sub.train.set); dim(sub.test.set)
+```
+Note, 14718 + 49004 is equal to 19622, the number of observations in the training set.
+
+Let's review the variable "classe". The three frequency tables show how the levels are distributed across the datasets.
+```{r}
+table(train.set$classe)
+table(sub.train.set$classe)
+table(sub.test.set$classe)
+```
+This shows classe "A" occurs most often, and classe "D" occurs the least. The latter two tables indicate that these classes are distributed across the two subsets in the same way.
+
+## Model Development
+Time to develop a model.
+
+### Training
+We use the randomForest function from the same named 'randomForest' package to train a model based on the subset of the training dataset.
+```{r}
+model.rf <- randomForest(classe ~. , data = sub.train.set, importance = TRUE)
+```
+
+### Validation
+First, we review how the model performs on the training set itself.
+```{r}
+# Training set accuracy.
+pred.rf.sub.train <- predict(model.rf, sub.train.set)
+
+# Test results on sub.train data set:
+confusionMatrix(pred.rf.sub.train, sub.train.set$classe)$table
+confusionMatrix(pred.rf.sub.train, sub.train.set$classe)$overall
+```
+As expected, the model performs very well against the training set. We see that the numbers on the diagonal are the same as in the second frequency table in the section on partitioning the training dataset. 
+
+### Cross Validation
+Next, we cross validate the model performance against the subset that was not used in the model training.
+```{r}
+# Cross validation set accuracy.
+pred.rf.sub.test <- predict(model.rf, sub.test.set)
+
+# Test results on sub.test data set:
+confusionMatrix(pred.rf.sub.test, sub.test.set$classe)$table
+confusionMatrix(pred.rf.sub.test, sub.test.set$classe)$overall
+```
+The cross validation accuracy is 99.4%. This makes the out-of-sample error equal to 0.6%.
+
+## Model Prediction
+
+The model predicts the following classe levels for the test set.
+```{r}
+pred.rf.test <- predict(model.rf, test.set)
+pred.rf.test
+```
+
+This completes the analysis.
+
+## References
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+Read more: http://groupware.les.inf.puc-rio.br/har#ixzz4hcZ1yHHa
