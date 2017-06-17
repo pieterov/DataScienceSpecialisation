@@ -1,0 +1,11 @@
+name: developing_data_products_-_final_assignment
+title: Developing Data Products - Final assignment
+account: pieteroverdevest
+server: shinyapps.io
+appId: 190029
+bundleId: 871305
+url: https://pieteroverdevest.shinyapps.io/developing_data_products_-_final_assignment/
+when: 1497719614.22348
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: dummyplot.R

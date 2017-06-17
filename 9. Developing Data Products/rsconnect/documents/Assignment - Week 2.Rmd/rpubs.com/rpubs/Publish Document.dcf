@@ -1,0 +1,8 @@
+name: Publish Document
+title:
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/282015/4247e9d9b93b489697439e3ce8f55f1c
+bundleId: https://api.rpubs.com/api/v1/document/282015/4247e9d9b93b489697439e3ce8f55f1c
+url: http://rpubs.com/pieteroverdevest/282015
+when: 1497092958.44311

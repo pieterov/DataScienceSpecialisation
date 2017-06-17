@@ -1,0 +1,19 @@
+---
+title: "Small Demo of plot_ly"
+author: "Pieter Overdevest"
+date: "10/JUN/2017"
+output: ioslides_presentation
+---
+
+## Pieter Overdevest, June 10, 2016.
+
+---
+
+```{r echo=FALSE, fig.width=8, fig.height=5}
+print("Pieter Overdevest, June 10, 2016.")
+
+suppressPackageStartupMessages(library(plotly))
+
+plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", mode = "markers", color = ~factor(cyl), size = ~hp)
+
+```
