@@ -1,0 +1,88 @@
+Make your trigonometry homework (a bit) easier..
+========================================================
+author: Pieter Overdevest
+date: June 18, 2017
+autosize: true
+
+Final Assignment Presentation - Developing Data Products 
+
+<style>
+
+/* slide titles */
+.reveal h3 { 
+  font-size: 50px;
+  color: green;
+}
+
+/* heading for slides with two hashes ## */
+.reveal .slides section .slideContent h2 {
+   font-size: 40px;
+   font-weight: bold;
+   color: green;
+}
+
+/* ordered and unordered list styles */
+.reveal ul, 
+.reveal ol {
+    font-size: 25px;
+    color: red;
+    list-style-type: square;
+}
+
+/* normal text */
+.reveal .slides section .slideContent p {
+   font-size: 25px;
+}
+
+/* code */
+code.r{
+  font-size: 10px;
+}
+
+</style>
+
+This is an example of a box
+========================================================
+
+<div class="midcenter" style="margin-left:0px; margin-top:100px;">
+<img src="box.png"></img>
+</div>
+
+
+An app to make your trigonometry homework a bit easier!
+========================================================
+You may wonder, what does that box have to do with trigonometry.
+
+During trigonometry homework you might receive the question to calculate the distance between two opposite corners of a box, i.e., on opposite sides of the center of the box. Well, now there is an app for that! <br />
+
+To calculate this distance three variables are needed,
+- Height,
+- Depth, and,
+- Length
+
+of the box. 
+
+
+However, there is one more degree of freedom
+========================================================
+
+The plane direction through the box is also important. <br  />
+
+There are two possible directions of the diagonal plane through the box. The plane could go,
+- from left to right, or,
+- from front to back
+<br />
+
+of the box.
+
+
+And there is something more..
+========================================================
+
+In addition, the angles between the plane diagonal and the vertical and horizontal line of the diagonal plane are calculated. This is done through use of the arctangent. As an example, a simple plot of the angles for a tangent between 0 and 5 is shown below. <br /> 
+
+Enough talk, it is time to try out [the app] (https://pieteroverdevest.shinyapps.io/final_assignment_-_developing_data_products/) yourself!
+
+```{r, size=10, fig.width=6, fig.height=3, dpi=300, out.width="600px", out.height="300px"}
+par(mar=c(6,6,2,0)); x <- seq(0,5,0.1); plot(x, atan(x)/pi*180, cex=2, cex.axis=1.5, cex.lab=1.5, xlab = "Tangent", ylab = "Angle (degrees)"); grid()
+```

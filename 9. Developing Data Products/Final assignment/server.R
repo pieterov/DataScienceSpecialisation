@@ -32,11 +32,16 @@ shinyServer(
                         xb <- c(0, xb0, xb0, 0)
                         yb <- c(0, 0, yb0, yb0)
                         
+                        angle1 <- round(atan(yb0/xb0)/pi*180,1)
+                        angle2 <- 90-angle1
+                        
                         ###################################################################
                         # PLOT 1: Draw 3 sides of the box.
                         ###################################################################
                         
-                        plot(xa, ya, type = "n", axes=FALSE, xlab="", ylab="", xlim=c(-1,maxlim), ylim=c(-1,maxlim))
+                        plot(xa, ya, type = "n", axes=FALSE, xlab="", ylab="",
+                             xlim=c(-1,maxlim), ylim=c(-1,maxlim))
+                        title("Unfolded Box (half)", line = -2)
                         polygon(xa[1:8], ya[1:8], col="gray", border = "blue", lwd = 3)
                         polygon(xa[9:12], ya[9:12], col="gray", border = "blue", lwd = 3)
                         
@@ -60,7 +65,9 @@ shinyServer(
                         # PLOT 2: Draw plane inside the box.
                         ###################################################################
                         
-                        plot(xb, yb, type = "n", axes=FALSE, xlab="", ylab="", xlim=c(-1,maxlim), ylim=c(-1,maxlim))
+                        plot(xb, yb, type = "n", axes=FALSE, xlab="", ylab="",
+                             xlim=c(-1,maxlim), ylim=c(-1,maxlim))
+                        title("Diagonal Plane through Box", line = -2)
                         polygon(xb, yb, col="gray", border = "blue", lwd = 3)
                         
                         # Print the dimensions of the plane.
@@ -72,9 +79,11 @@ shinyServer(
                         lines(c(xb0, xb0), c(0, yb0), lwd=3, col="red")
                         
                         # Print length plane diagonal and angle.
-                        text(xb0+0.1, yb0-1, paste("Diagonal2 = ", round(sqrt(xb0^2+yb0^2), 2)), col = "blue", pos = 4)
-                        text(0.5, 0.5, paste(round(atan(yb0/xb0)/pi*180,1),"deg"), col = "blue", pos = 4)
-                
+                        text(xb0+0.1, yb0, paste("Diagonal2 = ", round(sqrt(xb0^2+yb0^2), 2)), col = "blue", pos = 4)
+                        text(xb0+0.1, yb0*11.5/10, paste("a = ", angle1,"deg"), col = "blue", pos = 4)
+                        text(xb0+0.1, yb0*8.5/10, paste("b = ", angle2,"deg"), col = "blue", pos = 4)
+                        text(xb0*8/10, yb0*9/10, "a", col = "blue")
+                        text(xb0*9/10, yb0*8/10, "b", col = "blue")
                 })                
         }
 

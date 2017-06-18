@@ -25,7 +25,7 @@ fluidPage(
                         The red line is the surface diagonal (Diagonal1)."),
                         p("The right schematic shows the diagonal plain through the box, either from left to right,
                           or from front to back - depending on your choice. The plane diagonal is shown in blue (Diagonal2).
-                           The angle between the plane diagonal and the baseline is given in blue."),
+                           The angles between the plane diagonal and the horizontal and vertical lines are given in blue."),
                         plotOutput("plot1")
                 )
         )
